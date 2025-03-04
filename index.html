@@ -4,19 +4,20 @@
   <meta charset="UTF-8">
   <title>Redirigiendo...</title>
   <style>
-    /* Oculta todo el contenido para que el usuario no vea nada */
+    /* Oculta el contenido para que el usuario no vea nada */
     body { display: none; }
   </style>
   
-  <!-- Código del Facebook Pixel -->
+  <!-- Facebook Pixel Code -->
   <script>
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){
-    n.callMethod? n.callMethod.apply(n, arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0';
-    n.queue=[]; t=b.createElement(e); t.async=!0;
-    t.src=v; s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document, 'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
+      n.callMethod? n.callMethod.apply(n, arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0';
+      n.queue=[]; t=b.createElement(e); t.async=!0;
+      t.src=v; s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '1163260231423575'); // Pixel ID oficial
     fbq('track', 'PageView');
   </script>
@@ -24,10 +25,33 @@
     <img height="1" width="1" style="display:none"
          src="https://www.facebook.com/tr?id=1163260231423575&ev=PageView&noscript=1"/>
   </noscript>
-  <!-- Fin del Facebook Pixel -->
-
+  <!-- Fin del Facebook Pixel Code -->
+  
   <script>
-    // Función para obtener parámetros de la URL
+    // Función para establecer una cookie
+    function setCookie(name, value, days) {
+      var expires = "";
+      if (days) {
+          var date = new Date();
+          date.setTime(date.getTime() + (days*24*60*60*1000));
+          expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    // Función para obtener una cookie
+    function getCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0;i < ca.length;i++) {
+          var c = ca[i];
+          while (c.charAt(0)==' ') c = c.substring(1,c.length);
+          if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    }
+
+    // Función para obtener un parámetro de la URL
     function getParameterByName(name, url) {
       if (!url) url = window.location.href;
       name = name.replace(/[\[\]]/g, '\\$&');
@@ -39,30 +63,45 @@
     }
 
     window.onload = function(){
-      // Capturamos el fbclid de la URL
       var fbclid = getParameterByName('fbclid');
+      var fbc_value = "";
       if(fbclid){
-        // Guardamos el fbclid en localStorage para persistencia durante la sesión
+        // Si fbclid está presente, primero comprobamos si existe la cookie _fbc
+        var existingFbc = getCookie('_fbc');
+        var now = Date.now(); // Tiempo actual en milisegundos
+        if(!existingFbc){
+          // Formateamos el fbc según lo recomendado: fb.<subdomainIndex>.<creationTime>.<fbclid>
+          // Usamos "1" como subdomainIndex (ajústalo si es necesario)
+          fbc_value = "fb.1." + now + "." + fbclid;
+          // Establecemos la cookie _fbc con caducidad de 90 días
+          setCookie('_fbc', fbc_value, 90);
+        } else {
+          fbc_value = existingFbc;
+        }
+        
+        // Guardamos el fbclid en localStorage (opcional)
         localStorage.setItem('fbclid', fbclid);
-        // Enviamos el evento ViewContent al Pixel con el fbclid
-        fbq('track', 'ViewContent', { fbclid: fbclid });
-        // Construimos el mensaje predefinido que incluye el fbclid
+        
+        // Enviamos el evento ViewContent con el parámetro fbc formateado
+        fbq('track', 'ViewContent', { fbc: fbc_value });
+        
+        // Construimos el mensaje predefinido con el fbclid original
         var mensaje = "Hola, me gustaría empezar a jugar, ¿cómo empiezo? Mi CODIGO de REFERIDO es: " + fbclid;
       } else {
-        // Mensaje genérico si no se encontró fbclid
+        // Si no se encuentra fbclid, usamos un mensaje genérico
         var mensaje = "Hola, me gustaría empezar a jugar.";
       }
       
       // Codificamos el mensaje para URL
       var mensajeCodificado = encodeURIComponent(mensaje);
       
-      // Número de WhatsApp: +34 694 27 95 89 => Formato para URL: 34694279589
+      // Número de WhatsApp: +34 694 27 95 89 se convierte a 34694279589
       var numeroWhatsApp = "34694279589";
       
       // Construimos el enlace a WhatsApp con el mensaje prellenado
       var enlaceWhatsApp = "https://wa.me/" + numeroWhatsApp + "?text=" + mensajeCodificado;
       
-      // Redirigimos al usuario automáticamente después de 1 segundo
+      // Redirigimos automáticamente al usuario después de 1 segundo
       setTimeout(function(){
         window.location.href = enlaceWhatsApp;
       }, 1000);
@@ -70,6 +109,7 @@
   </script>
 </head>
 <body>
-  <!-- El body está vacío para no mostrar nada al usuario -->
+  <!-- Body vacío para no mostrar nada al usuario -->
 </body>
 </html>
+
