@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirigiendo...</title>
+  <style>
+    /* Oculta todo el contenido para que el usuario no vea nada */
+    body { display: none; }
+  </style>
+  
+  <!-- Código del Facebook Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){
+    n.callMethod? n.callMethod.apply(n, arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0';
+    n.queue=[]; t=b.createElement(e); t.async=!0;
+    t.src=v; s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document, 'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1163260231423575'); // Pixel ID oficial
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+         src="https://www.facebook.com/tr?id=1163260231423575&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- Fin del Facebook Pixel -->
+
+  <script>
+    // Función para obtener parámetros de la URL
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    window.onload = function(){
+      // Capturamos el fbclid de la URL
+      var fbclid = getParameterByName('fbclid');
+      if(fbclid){
+        // Guardamos el fbclid en localStorage para persistencia durante la sesión
+        localStorage.setItem('fbclid', fbclid);
+        // Enviamos el evento ViewContent al Pixel con el fbclid
+        fbq('track', 'ViewContent', { fbclid: fbclid });
+        // Construimos el mensaje predefinido que incluye el fbclid
+        var mensaje = "Hola, me gustaría empezar a jugar, ¿cómo empiezo? Mi CODIGO de REFERIDO es: " + fbclid;
+      } else {
+        // Mensaje genérico si no se encontró fbclid
+        var mensaje = "Hola, me gustaría empezar a jugar.";
+      }
+      
+      // Codificamos el mensaje para URL
+      var mensajeCodificado = encodeURIComponent(mensaje);
+      
+      // Número de WhatsApp: +34 694 27 95 89 => Formato para URL: 34694279589
+      var numeroWhatsApp = "34694279589";
+      
+      // Construimos el enlace a WhatsApp con el mensaje prellenado
+      var enlaceWhatsApp = "https://wa.me/" + numeroWhatsApp + "?text=" + mensajeCodificado;
+      
+      // Redirigimos al usuario automáticamente después de 1 segundo
+      setTimeout(function(){
+        window.location.href = enlaceWhatsApp;
+      }, 1000);
+    }
+  </script>
+</head>
+<body>
+  <!-- El body está vacío para no mostrar nada al usuario -->
+</body>
+</html>
